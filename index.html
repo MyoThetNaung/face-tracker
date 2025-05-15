@@ -15,8 +15,9 @@
   <div id="camera-instructions">
     <p><strong>This app requires camera access to track your face.</strong></p>
     <p id="camera-status">Waiting for camera...</p>
-    <button id="enable-camera">Enable Camera</button>
-    <p class="note">Note: On iOS, you must tap "Enable Camera" and then allow camera permissions when prompted.</p>
+    <a href="#" id="ios-camera-link" style="display: inline-block; background-color: #FF9800; color: white; text-decoration: none; font-weight: bold; padding: 15px 25px; border-radius: 5px; margin: 10px auto; width: 80%; max-width: 280px;">iOS: Tap Here First</a>
+    <button id="enable-camera" style="background-color: #4CAF50; color: white; font-size: 18px; padding: 15px 25px; border: none; border-radius: 5px; margin: 20px 0; cursor: pointer; display: block; width: 80%; max-width: 280px; margin: 20px auto;">Enable Camera</button>
+    <p class="note">Note: On iOS, you may need to tap both buttons to enable camera access.</p>
   </div>
   <div id="detection-status" class="hidden">
     <div class="status-indicator">
@@ -32,6 +33,59 @@
     <p><small>Debug Info:</small></p>
     <p><small id="debug-info">No info yet</small></p>
     <button id="debug-button" class="small-button">Check Camera State</button>
+    <button id="force-camera" class="small-button">Try Force Camera Access</button>
   </div>
+  
+  <script>
+    // Check if this is iOS
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    var iosLink = document.getElementById('ios-camera-link');
+    
+    // Show iOS-specific button only on iOS devices
+    if (!isIOS) {
+      iosLink.style.display = 'none';
+    }
+    
+    // iOS-specific camera access
+    iosLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('debug-info').textContent = 'iOS camera link clicked';
+      
+      // iOS Safari requires a direct user interaction with minimal code in between
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+          var video = document.getElementById('video');
+          video.srcObject = stream;
+          video.setAttribute('autoplay', true);
+          video.setAttribute('playsinline', true);
+          video.muted = true;
+          video.play();
+          document.getElementById('debug-info').textContent = 'iOS camera access granted!';
+        })
+        .catch(function(err) {
+          document.getElementById('debug-info').textContent = 'iOS camera error: ' + err.name;
+        });
+    });
+    
+    // Force camera button
+    document.getElementById('force-camera').addEventListener('click', function() {
+      document.getElementById('debug-info').textContent = 'Attempting direct camera access...';
+      
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(function(stream) {
+            document.getElementById('debug-info').textContent = 'Force camera successful!';
+            var video = document.getElementById('video');
+            video.srcObject = stream;
+            video.play();
+          })
+          .catch(function(err) {
+            document.getElementById('debug-info').textContent = 'Force camera error: ' + err.name;
+          });
+      } else {
+        document.getElementById('debug-info').textContent = 'getUserMedia not supported';
+      }
+    });
+  </script>
 </body>
 </html>
