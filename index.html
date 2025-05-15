@@ -7,8 +7,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="stylesheet" href="style.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
-  <script defer src="script.js"></script>
 </head>
 <body>
   <h1>Face Tracker</h1>
@@ -18,12 +16,6 @@
     <a href="#" id="ios-camera-link" style="display: inline-block; background-color: #FF9800; color: white; text-decoration: none; font-weight: bold; padding: 15px 25px; border-radius: 5px; margin: 10px auto; width: 80%; max-width: 280px;">iOS: Tap Here First</a>
     <button id="enable-camera" style="background-color: #4CAF50; color: white; font-size: 18px; padding: 15px 25px; border: none; border-radius: 5px; margin: 20px 0; cursor: pointer; display: block; width: 80%; max-width: 280px; margin: 20px auto;">Enable Camera</button>
     <p class="note">Note: On iOS, you may need to tap both buttons to enable camera access.</p>
-  </div>
-  
-  <div id="camera-controls" class="hidden">
-    <button id="flip-camera" class="control-button">
-      <span>📷</span> Flip Camera
-    </button>
   </div>
   
   <div id="detection-status" class="hidden">
@@ -62,7 +54,7 @@
       document.getElementById('debug-info').textContent = 'iOS camera link clicked';
       
       // iOS Safari requires a direct user interaction with minimal code in between
-      navigator.mediaDevices.getUserMedia({ video: true })
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
         .then(function(stream) {
           var video = document.getElementById('video');
           video.srcObject = stream;
@@ -71,7 +63,6 @@
           video.muted = true;
           video.play();
           document.getElementById('debug-info').textContent = 'iOS camera access granted!';
-          document.getElementById('camera-controls').classList.remove('hidden');
         })
         .catch(function(err) {
           document.getElementById('debug-info').textContent = 'iOS camera error: ' + err.name;
@@ -83,13 +74,12 @@
       document.getElementById('debug-info').textContent = 'Attempting direct camera access...';
       
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
           .then(function(stream) {
             document.getElementById('debug-info').textContent = 'Force camera successful!';
             var video = document.getElementById('video');
             video.srcObject = stream;
             video.play();
-            document.getElementById('camera-controls').classList.remove('hidden');
           })
           .catch(function(err) {
             document.getElementById('debug-info').textContent = 'Force camera error: ' + err.name;
@@ -98,15 +88,8 @@
         document.getElementById('debug-info').textContent = 'getUserMedia not supported';
       }
     });
-    
-    // Flip camera button
-    document.getElementById('flip-camera').addEventListener('click', function() {
-      if (typeof flipCamera === 'function') {
-        flipCamera();
-      } else {
-        document.getElementById('debug-info').textContent = 'Flip camera function not available';
-      }
-    });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
