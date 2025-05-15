@@ -7,6 +7,7 @@ body {
   padding: 20px;
   max-width: 100%;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1 {
@@ -16,9 +17,65 @@ h1 {
 #camera-instructions {
   background-color: rgba(0, 0, 0, 0.7);
   border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 1px solid #444;
+}
+
+#enable-camera {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 10px 0;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+#enable-camera:hover {
+  background-color: #45a049;
+}
+
+.hidden {
+  display: none;
+}
+
+#detection-status {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #444;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+#status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #f44336;
+  margin-right: 8px;
+  display: inline-block;
+}
+
+#status-dot.active {
+  background-color: #4CAF50;
+}
+
+#direction {
+  font-weight: bold;
+  margin-top: 5px;
 }
 
 video, canvas {
@@ -39,5 +96,12 @@ video, canvas {
   
   #camera-instructions p {
     font-size: 0.9rem;
+  }
+  
+  #enable-camera {
+    width: 100%;
+    max-width: 200px;
+    padding: 12px 0;
+    font-size: 16px;
   }
 }
