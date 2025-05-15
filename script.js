@@ -12,12 +12,49 @@ Promise.all([
 ]).then(startVideo);
 
 function startVideo() {
-  navigator.mediaDevices.getUserMedia({ video: true })
+  // Additional constraints to help with mobile devices and Vercel deployment
+  const constraints = {
+    audio: false,
+    video: {
+      width: { ideal: 320 },
+      height: { ideal: 240 },
+      facingMode: "user"
+    }
+  };
+
+  // Check if getUserMedia is supported
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert("Your browser doesn't support camera access or you're not using HTTPS");
+    console.error("getUserMedia not supported");
+    return;
+  }
+
+  navigator.mediaDevices.getUserMedia(constraints)
     .then(stream => {
       video.srcObject = stream;
+      console.log("Camera access granted");
     })
     .catch(err => {
-      console.error("Camera access error:", err);
+      console.error("Camera access error:", err.name, err.message);
+      if (err.name === "NotAllowedError") {
+        alert("Camera access denied. Please allow camera access and reload the page.");
+      } else if (err.name === "NotFoundError") {
+        alert("No camera found. Please connect a camera and reload the page.");
+      } else if (err.name === "NotReadableError") {
+        alert("Camera is in use by another application. Please close other camera apps and reload.");
+      } else if (err.name === "OverconstrainedError") {
+        // Try again with simpler constraints
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(stream => {
+            video.srcObject = stream;
+          })
+          .catch(e => {
+            console.error("Fallback camera access failed:", e);
+            alert("Camera access failed. Please check permissions and try again.");
+          });
+      } else {
+        alert("Camera error: " + err.message);
+      }
     });
 }
 
