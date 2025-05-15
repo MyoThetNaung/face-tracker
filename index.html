@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Face Tracker</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="style.css">
   <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
   <script defer src="script.js"></script>
@@ -12,7 +12,15 @@
   <h1>Face Tracker</h1>
   <div id="camera-instructions">
     <p>This app requires camera access to track your face.</p>
-    <p>Please allow camera access when prompted.</p>
+    <p id="camera-status">Waiting for camera...</p>
+    <button id="enable-camera">Enable Camera</button>
+  </div>
+  <div id="detection-status" class="hidden">
+    <div class="status-indicator">
+      <span id="status-dot"></span>
+      <span id="status-text">No face detected</span>
+    </div>
+    <div id="direction">Direction: <span id="direction-value">center</span></div>
   </div>
   <video id="video" autoplay muted playsinline width="320" height="240"></video>
   <canvas id="overlay"></canvas>
