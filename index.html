@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Face Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="stylesheet" href="style.css">
   <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
   <script defer src="script.js"></script>
@@ -11,9 +13,10 @@
 <body>
   <h1>Face Tracker</h1>
   <div id="camera-instructions">
-    <p>This app requires camera access to track your face.</p>
+    <p><strong>This app requires camera access to track your face.</strong></p>
     <p id="camera-status">Waiting for camera...</p>
     <button id="enable-camera">Enable Camera</button>
+    <p class="note">Note: On iOS, you must tap "Enable Camera" and then allow camera permissions when prompted.</p>
   </div>
   <div id="detection-status" class="hidden">
     <div class="status-indicator">
@@ -24,5 +27,11 @@
   </div>
   <video id="video" autoplay muted playsinline width="320" height="240"></video>
   <canvas id="overlay"></canvas>
+  
+  <div id="debug-section">
+    <p><small>Debug Info:</small></p>
+    <p><small id="debug-info">No info yet</small></p>
+    <button id="debug-button" class="small-button">Check Camera State</button>
+  </div>
 </body>
 </html>
