@@ -19,6 +19,13 @@
     <button id="enable-camera" style="background-color: #4CAF50; color: white; font-size: 18px; padding: 15px 25px; border: none; border-radius: 5px; margin: 20px 0; cursor: pointer; display: block; width: 80%; max-width: 280px; margin: 20px auto;">Enable Camera</button>
     <p class="note">Note: On iOS, you may need to tap both buttons to enable camera access.</p>
   </div>
+  
+  <div id="camera-controls" class="hidden">
+    <button id="flip-camera" class="control-button">
+      <span>📷</span> Flip Camera
+    </button>
+  </div>
+  
   <div id="detection-status" class="hidden">
     <div class="status-indicator">
       <span id="status-dot"></span>
@@ -26,8 +33,11 @@
     </div>
     <div id="direction">Direction: <span id="direction-value">center</span></div>
   </div>
-  <video id="video" autoplay muted playsinline width="320" height="240"></video>
-  <canvas id="overlay"></canvas>
+  
+  <div id="video-container">
+    <video id="video" autoplay muted playsinline width="320" height="240"></video>
+    <canvas id="overlay"></canvas>
+  </div>
   
   <div id="debug-section">
     <p><small>Debug Info:</small></p>
@@ -61,6 +71,7 @@
           video.muted = true;
           video.play();
           document.getElementById('debug-info').textContent = 'iOS camera access granted!';
+          document.getElementById('camera-controls').classList.remove('hidden');
         })
         .catch(function(err) {
           document.getElementById('debug-info').textContent = 'iOS camera error: ' + err.name;
@@ -78,12 +89,22 @@
             var video = document.getElementById('video');
             video.srcObject = stream;
             video.play();
+            document.getElementById('camera-controls').classList.remove('hidden');
           })
           .catch(function(err) {
             document.getElementById('debug-info').textContent = 'Force camera error: ' + err.name;
           });
       } else {
         document.getElementById('debug-info').textContent = 'getUserMedia not supported';
+      }
+    });
+    
+    // Flip camera button
+    document.getElementById('flip-camera').addEventListener('click', function() {
+      if (typeof flipCamera === 'function') {
+        flipCamera();
+      } else {
+        document.getElementById('debug-info').textContent = 'Flip camera function not available';
       }
     });
   </script>
