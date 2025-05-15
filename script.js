@@ -50,51 +50,52 @@ Promise.all([
 });
 
 // Button to explicitly trigger camera access (helps with iOS)
-enableCameraBtn.addEventListener("click", async () => {
-  try {
-    // This needs to be directly connected to the user interaction for iOS
-    cameraStatus.textContent = "Requesting camera access...";
-    
-    // Force iOS to show the permission prompt by directly calling getUserMedia from the click handler
-    const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: {
-        facingMode: "user",
-        width: { ideal: 320 },
-        height: { ideal: 240 }
-      } 
+enableCameraBtn.addEventListener("click", function() {
+  // Update status
+  cameraStatus.textContent = "Requesting camera...";
+  debugInfo.textContent = "Button clicked, requesting camera";
+  
+  // This is the critical part - directly request camera in the click handler
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    // Very simple request - don't use async/await or promises at the top level
+    navigator.mediaDevices.getUserMedia({
+      audio: false,
+      video: true // Keep it simple - complex constraints may not trigger the permission popup
+    })
+    .then(function(stream) {
+      // Success handler
+      debugInfo.textContent = "Camera permission granted";
+      video.srcObject = stream;
+      video.setAttribute('autoplay', true);
+      video.setAttribute('playsinline', true);
+      video.muted = true;
+      
+      // Try to play the video
+      video.play()
+      .then(function() {
+        // Video is playing
+        debugInfo.textContent += "\nVideo playing";
+        cameraStatus.textContent = "Camera working";
+        enableCameraBtn.style.display = "none";
+        detectionStatus.classList.remove("hidden");
+        setupFaceDetection();
+      })
+      .catch(function(err) {
+        debugInfo.textContent += "\nPlay error: " + err;
+      });
+    })
+    .catch(function(err) {
+      // Handle errors
+      debugInfo.textContent = "Camera error: " + err.name;
+      cameraStatus.textContent = "Camera error: " + err.name;
+      
+      if (err.name === "NotAllowedError") {
+        cameraStatus.textContent = "Camera access denied!";
+      }
     });
-    
-    // Set the stream directly
-    video.srcObject = stream;
-    
-    // iOS requires these attributes
-    video.setAttribute('autoplay', true);
-    video.setAttribute('muted', true);
-    video.setAttribute('playsinline', true);
-    
-    // Force play to happen after user interaction
-    await video.play();
-    
-    // Update UI
-    cameraStatus.textContent = "Camera access granted";
-    enableCameraBtn.style.display = "none";
-    detectionStatus.classList.remove("hidden");
-    
-    // Setup detection after successful camera access
-    setupFaceDetection();
-    
-  } catch (err) {
-    console.error("Camera access error:", err.name, err.message);
-    
-    if (err.name === "NotAllowedError") {
-      cameraStatus.textContent = "Camera access denied. Please enable camera access in your browser settings and try again.";
-    } else if (err.name === "NotFoundError") {
-      cameraStatus.textContent = "No camera found. Please connect a camera and try again.";
-    } else if (err.name === "NotReadableError") {
-      cameraStatus.textContent = "Camera is in use by another application. Please close other camera apps.";
-    } else {
-      cameraStatus.textContent = "Camera error: " + err.message;
-    }
+  } else {
+    cameraStatus.textContent = "Camera API not available";
+    debugInfo.textContent = "getUserMedia API not available";
   }
 });
 
@@ -105,17 +106,39 @@ function startVideo() {
 
 function setupFaceDetection() {
   // Make sure canvas matches video dimensions
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  canvas.width = video.videoWidth || 320;
+  canvas.height = video.videoHeight || 240;
   
   // Clear any existing interval
   if (faceDetectionInterval) {
     clearInterval(faceDetectionInterval);
   }
   
+  // Update debug info
+  debugInfo.textContent = "Setting up face detection. Video dimensions: " + 
+                          video.videoWidth + "x" + video.videoHeight;
+  
   // Start face detection loop
   faceDetectionInterval = setInterval(detectFaces, 300);
 }
+
+// Direct camera access through DOM
+video.addEventListener('loadedmetadata', function() {
+  debugInfo.textContent += "\nVideo metadata loaded";
+  
+  if (video.srcObject) {
+    setupFaceDetection();
+  }
+});
+
+// Make sure detection starts if the video is already playing
+video.addEventListener('playing', function() {
+  debugInfo.textContent += "\nVideo is playing";
+  
+  if (!faceDetectionInterval && video.srcObject) {
+    setupFaceDetection();
+  }
+});
 
 async function detectFaces() {
   if (video.readyState !== 4) return; // Not ready yet
