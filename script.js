@@ -2,7 +2,7 @@ const video = document.getElementById("video");
 const canvas = document.getElementById("overlay");
 const context = canvas.getContext("2d");
 
-const ESP32_IP = "http://192.168.x.x"; // 🛠️ Replace this with your ESP32 IP address
+const ESP32_IP = "http://192.168.x.x"; // Replace with your ESP32 IP
 
 let faceLastSeen = Date.now();
 let trackingActive = false;
@@ -32,12 +32,10 @@ video.addEventListener("play", () => {
     if (detections.length > 0) {
       const face = detections[0].box;
       const faceCenterX = face.x + face.width / 2;
-      const faceCenterY = face.y + face.height / 2;
       const frameWidth = video.width;
 
-      // Draw red circle at face center
       context.beginPath();
-      context.arc(faceCenterX, faceCenterY, 10, 0, 2 * Math.PI);
+      context.arc(faceCenterX, face.y + face.height / 2, 10, 0, 2 * Math.PI);
       context.strokeStyle = "red";
       context.lineWidth = 4;
       context.stroke();
@@ -49,15 +47,12 @@ video.addEventListener("play", () => {
         console.log("Face acquired.");
       }
 
-      // Direction logic
       let dir = "center";
       if (faceCenterX < frameWidth / 3) dir = "left";
       else if (faceCenterX > frameWidth * 2 / 3) dir = "right";
 
-      // Send command to ESP32
       fetch(`${ESP32_IP}/rotate?dir=${dir}`).catch(err => console.warn("ESP32 fetch error:", err));
     } else {
-      // If face is gone for 2 seconds, stop tracking
       if (Date.now() - faceLastSeen > 2000 && trackingActive) {
         trackingActive = false;
         console.log("Face lost. Waiting...");
