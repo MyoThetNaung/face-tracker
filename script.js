@@ -156,16 +156,46 @@ async function detectFaces() {
       const frameWidth = video.videoWidth;
       // Flip X for mirrored display
       const mirroredFaceCenterX = frameWidth - faceCenterX;
+      // Draw green rectangle (square) around the face
+      context.save();
+      context.strokeStyle = "#00FF00";
+      context.lineWidth = 3;
+      context.beginPath();
+      context.rect(face.x, face.y, face.width, face.height);
+      context.stroke();
+      context.restore();
+      // Draw direction label below the face box, centered
+      let dir = "center";
+      if (mirroredFaceCenterX < frameWidth / 3) dir = "left";
+      else if (mirroredFaceCenterX > frameWidth * 2 / 3) dir = "right";
+      context.save();
+      context.font = "bold 20px Arial";
+      context.textAlign = "center";
+      context.textBaseline = "top";
+      context.fillStyle = "#00FF00";
+      context.strokeStyle = "#111";
+      context.lineWidth = 4;
+      // Draw background for text for better visibility
+      const labelX = face.x + face.width / 2;
+      const labelY = face.y + face.height + 8;
+      const text = dir.toUpperCase();
+      // Draw background rectangle for text
+      const metrics = context.measureText(text);
+      const padding = 6;
+      context.fillStyle = "rgba(0,0,0,0.7)";
+      context.fillRect(labelX - metrics.width / 2 - padding, labelY - padding / 2, metrics.width + padding * 2, 28);
+      // Draw the text
+      context.fillStyle = "#00FF00";
+      context.fillText(text, labelX, labelY);
+      context.restore();
+      // Draw face indicator (red dot)
+      context.save();
       context.beginPath();
       context.arc(faceCenterX, face.y + face.height / 2, 10, 0, 2 * Math.PI);
       context.strokeStyle = "red";
       context.lineWidth = 4;
       context.stroke();
-      context.beginPath();
-      context.rect(face.x, face.y, face.width, face.height);
-      context.strokeStyle = "green";
-      context.lineWidth = 2;
-      context.stroke();
+      context.restore();
       faceLastSeen = Date.now();
       statusDot.classList.add("active");
       statusText.textContent = "Face detected";
@@ -173,9 +203,6 @@ async function detectFaces() {
         trackingActive = true;
         console.log("Face acquired.");
       }
-      let dir = "center";
-      if (mirroredFaceCenterX < frameWidth / 3) dir = "left";
-      else if (mirroredFaceCenterX > frameWidth * 2 / 3) dir = "right";
       directionValue.textContent = dir;
       fetch(`${ESP32_IP}/rotate?dir=${dir}`)
         .then(() => console.log("Direction sent:", dir))
