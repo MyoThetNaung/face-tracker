@@ -5,9 +5,39 @@ body {
   color: white;
   margin: 0;
   padding: 20px;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+h1 {
+  margin-bottom: 15px;
+}
+
+#camera-instructions {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #444;
 }
 
 video, canvas {
   border: 2px solid #fff;
   margin-top: 10px;
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  #camera-instructions p {
+    font-size: 0.9rem;
+  }
 }
